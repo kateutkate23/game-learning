@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <h2 class="text-center">Редактировать модуль</h2>
+        <form method="post" action="/modules/edit/{{ module.id }}" enctype="multipart/form-data" class="mt-4">
+            <div class="mb-3">
+                <label for="title" class="form-label">Заголовок</label>
+                <input type="text" class="form-control" id="title" name="title" value="{{ module.title }}" required>
+            </div>
+            {% if module.type == "theory" %}
+            <div class="mb-3">
+                <label for="text" class="form-label">Текст</label>
+                <textarea class="form-control" id="text" name="text" rows="5">{{ module.content.text }}</textarea>
+            </div>
+            {% else %}
+            <div class="mb-3">
+                <label for="question" class="form-label">Вопрос</label>
+                <input type="text" class="form-control" id="question" name="question"
+                       value="{{ module.content.question }}">
+            </div>
+            <div class="mb-3">
+                <label for="options" class="form-label">Варианты ответа (через запятую)</label>
+                <input type="text" class="form-control" id="options" name="options"
+                       value="{{ module.content.options | join(',') }}">
+            </div>
+            <div class="mb-3">
+                <label for="correct" class="form-label">Правильный ответ (номер варианта, начиная с 0)</label>
+                <input type="number" class="form-control" id="correct" name="correct"
+                       value="{{ module.content.correct }}" min="0">
+            </div>
+            {% endif %}
+            <div class="mb-3">
+                <label for="points" class="form-label">Баллы за прохождение</label>
+                <input type="number" class="form-control" id="points" name="points" value="{{ module.points }}" required
+                       min="0">
+            </div>
+            <div class="mb-3">
+                <label for="image" class="form-label">Изображение (опционально)</label>
+                <input type="file" class="form-control" id="image" name="image">
+                {% if module.image %}
+                <p>Текущее изображение: <img src="/{{ module.image }}" alt="Текущее изображение"
+                                             style="max-width: 100px;"></p>
+                {% endif %}
+            </div>
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+                <a href="/modules" class="btn btn-secondary">Отмена</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

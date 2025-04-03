@@ -1,0 +1,21 @@
+body {
+    font-family: 'Sans Serif Collection', sans-serif;
+}
+
+.navbar {
+    margin: 0 auto;
+}
+
+.navbar-nav {
+    flex-grow: 1;
+    justify-content: center;
+}
+
+.btn-primary {
+    border-radius: 4mm;
+}
+
+.form-container {
+    max-width: 400px;
+    margin: 0 auto;
+}

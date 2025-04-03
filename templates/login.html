@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <h2 class="text-center">Вход</h2>
+        <form method="post" action="/auth/login" class="mt-4">
+            <div class="mb-3">
+                <label for="login" class="form-label">Логин</label>
+                <input type="text" class="form-control" id="login" name="login" required>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Пароль</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">Войти</button>
+                <a href="/auth/register" class="btn btn-link">Нет аккаунта? Зарегистрироваться</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

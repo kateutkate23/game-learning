@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <h2 class="text-center">{{ module.title }}</h2>
+        <a href="/modules" class="btn btn-secondary mb-3">Выход</a>
+        {% if module.image %}
+        <img src="/{{ module.image }}" class="img-fluid mb-3" alt="Изображение модуля">
+        {% endif %}
+        {% if module.type == "theory" %}
+        <p>{{ module.content.text }}</p>
+        <form method="post" action="/modules/complete/{{ module.id }}">
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">Завершить</button>
+            </div>
+        </form>
+        {% else %}
+        <h4>{{ module.content.question }}</h4>
+        <p>{{ module.content.text }}</p>
+        <form method="post" action="/modules/complete/{{ module.id }}">
+            {% for i in range(module.content.options | length) %}
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="answer" id="option{{ i }}" value="{{ i }}" required>
+                <label class="form-check-label" for="option{{ i }}">{{ module.content.options[i] }}</label>
+            </div>
+            {% endfor %}
+            <div class="text-center mt-3">
+                <button type="submit" class="btn btn-primary">Завершить</button>
+            </div>
+        </form>
+        {% endif %}
+        {% if completed %}
+        <p class="text-center text-success mt-3">Модуль уже пройден!</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

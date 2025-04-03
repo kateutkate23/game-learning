@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <h2 class="text-center">Создать новый модуль</h2>
+        <form method="post" action="/modules/create" enctype="multipart/form-data" class="mt-4">
+            <div class="mb-3">
+                <label for="type" class="form-label">Тип модуля</label>
+                <select class="form-control" id="type" name="type" onchange="toggleFields()" required>
+                    <option value="theory">Теория</option>
+                    <option value="test">Тест</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="title" class="form-label">Заголовок</label>
+                <input type="text" class="form-control" id="title" name="title" required>
+            </div>
+            <div class="mb-3" id="theoryFields">
+                <label for="text" class="form-label">Текст</label>
+                <textarea class="form-control" id="text" name="text" rows="5"></textarea>
+            </div>
+            <div id="testFields" style="display: none;">
+                <div class="mb-3">
+                    <label for="question" class="form-label">Вопрос</label>
+                    <input type="text" class="form-control" id="question" name="question">
+                </div>
+                <div class="mb-3">
+                    <label for="options" class="form-label">Варианты ответа (через запятую)</label>
+                    <input type="text" class="form-control" id="options" name="options"
+                           placeholder="вариант1,вариант2,вариант3">
+                </div>
+                <div class="mb-3">
+                    <label for="correct" class="form-label">Правильный ответ (номер варианта, начиная с 0)</label>
+                    <input type="number" class="form-control" id="correct" name="correct" min="0">
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="points" class="form-label">Баллы за прохождение</label>
+                <input type="number" class="form-control" id="points" name="points" required min="0">
+            </div>
+            <div class="mb-3">
+                <label for="image" class="form-label">Изображение (опционально)</label>
+                <input type="file" class="form-control" id="image" name="image">
+            </div>
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">Опубликовать</button>
+                <a href="/modules" class="btn btn-secondary">Отмена</a>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    function toggleFields() {
+        const type = document.getElementById("type").value;
+        document.getElementById("theoryFields").style.display = type === "theory" ? "block" : "none";
+        document.getElementById("testFields").style.display = type === "test" ? "block" : "none";
+    }
+</script>
+{% endblock %}

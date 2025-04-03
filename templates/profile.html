@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <h2 class="text-center">Личный кабинет</h2>
+        <div class="row">
+            <div class="col-md-6 text-center">
+                {% if user.character %}
+                <p>Персонаж: {{ user.character.name }}</p>
+                <!-- Заглушка для изображения персонажа -->
+                <div class="border p-3 mb-3">
+                    <p>[Изображение персонажа]</p>
+                    <p>Волосы: {{ user.character.hair }}</p>
+                    <p>Форма лица: {{ user.character.face }}</p>
+                    <p>Костюм: {{ user.character.costume }}</p>
+                    <p>Обувь: {{ user.character.shoes }}</p>
+                </div>
+                {% else %}
+                <p>Персонаж еще не создан.</p>
+                {% endif %}
+                <a href="/character/edit" class="btn btn-primary mb-2">Редактировать персонажа</a>
+                <a href="/character/skills" class="btn btn-secondary mb-2">Характеристики</a>
+            </div>
+            <div class="col-md-6">
+                <h4>Информация о пользователе</h4>
+                <p><strong>Логин:</strong> {{ user.login }}</p>
+                <p><strong>Email:</strong> {{ user.email }}</p>
+                <p><strong>Роль:</strong> {{ "Студент" if user.role == "student" else "Преподаватель" }}</p>
+                <p><strong>Баллы:</strong> {{ user.points }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
