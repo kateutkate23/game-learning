@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 text-center">
+                <h1 class="display-4 mb-4">Добро пожаловать в систему обучения!</h1>
+                <p class="lead mb-4">
+                    Это интерактивная платформа, где вы можете изучать учебные модули, развивать своего персонажа и
+                    зарабатывать баллы.
+                    Преподаватели создают увлекательные уроки, а студенты погружаются в игровой процесс обучения.
+                </p>
+                {% if user %}
+                    <div class="mb-4">
+                        <h3>Здравствуйте, {{ user.login }}!</h3>
+                        <p>Ваша роль: {{ "Преподаватель" if user.role == "teacher" else "Студент" }}</p>
+                        <p>Ваши баллы: {{ user.points }}</p>
+                    </div>
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="/modules" class="btn btn-primary">Перейти к модулям</a>
+                        <a href="/profile" class="btn btn-secondary">Мой профиль</a>
+                        {% if user.role == "student" %}
+                            <a href="/character/skills" class="btn btn-success">Мой персонаж</a>
+                        {% endif %}
+                        <a href="/auth/logout" class="btn btn-outline-danger">Выйти</a>
+                    </div>
+                {% else %}
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="/auth/login" class="btn btn-primary">Войти</a>
+                        <a href="/auth/register" class="btn btn-outline-primary">Зарегистрироваться</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
