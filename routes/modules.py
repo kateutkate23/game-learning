@@ -4,12 +4,10 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from database import get_db
 from models.models import Module, User, Progress
-import json
-import os
+from typing import Optional  # Добавляем для Optional[int]
 
 router = APIRouter(prefix="/modules", tags=["modules"])
 templates = Jinja2Templates(directory="templates")
-
 
 @router.get("/", response_class=HTMLResponse)
 def get_modules(request: Request, db: Session = Depends(get_db)):
@@ -19,17 +17,14 @@ def get_modules(request: Request, db: Session = Depends(get_db)):
 
     user = db.query(User).filter(User.id == user_id).first()
     if user.role == "teacher":
-        # Для преподавателей: показываем их модули
         modules = db.query(Module).filter(Module.user_id == user_id).all()
         return templates.TemplateResponse("modules_teacher.html", {"request": request, "modules": modules})
     else:
-        # Для студентов: показываем все доступные модули
         modules = db.query(Module).all()
         progress = db.query(Progress).filter(Progress.user_id == user_id).all()
         completed_modules = {p.module_id for p in progress if p.completed}
         return templates.TemplateResponse("modules_student.html", {"request": request, "modules": modules,
                                                                    "completed_modules": completed_modules})
-
 
 @router.get("/create", response_class=HTMLResponse)
 def get_create_module(request: Request, db: Session = Depends(get_db)):
@@ -43,7 +38,6 @@ def get_create_module(request: Request, db: Session = Depends(get_db)):
 
     return templates.TemplateResponse("module_create.html", {"request": request})
 
-
 @router.post("/create", response_class=RedirectResponse)
 async def create_module(
         type: str = Form(...),
@@ -51,7 +45,7 @@ async def create_module(
         text: str = Form(None),
         question: str = Form(None),
         options: str = Form(None),
-        correct: int = Form(None),
+        correct: Optional[int] = Form(None),  # Изменяем на Optional[int]
         points: int = Form(...),
         image: UploadFile = File(None),
         request: Request = None,
@@ -86,7 +80,7 @@ async def create_module(
         if image.content_type not in ["image/png", "image/jpeg", "image/jpg"]:
             return templates.TemplateResponse("module_create.html", {"request": request,
                                                                      "error": "Формат изображения должен быть PNG, JPEG или JPG"})
-        if image.size > 5 * 1024 * 1024:  # 5 МБ
+        if image.size > 5 * 1024 * 1024:
             return templates.TemplateResponse("module_create.html", {"request": request,
                                                                      "error": "Размер изображения не должен превышать 5 МБ"})
         image_path = f"static/uploads/{image.filename}"
@@ -113,7 +107,7 @@ async def create_module(
     db.commit()
     return RedirectResponse(url="/modules", status_code=302)
 
-
+# Остальные маршруты без изменений
 @router.get("/edit/{module_id}", response_class=HTMLResponse)
 def get_edit_module(module_id: int, request: Request, db: Session = Depends(get_db)):
     user_id = request.session.get("user_id")
@@ -130,7 +124,6 @@ def get_edit_module(module_id: int, request: Request, db: Session = Depends(get_
 
     return templates.TemplateResponse("module_edit.html", {"request": request, "module": module})
 
-
 @router.post("/edit/{module_id}", response_class=RedirectResponse)
 async def edit_module(
         module_id: int,
@@ -138,7 +131,7 @@ async def edit_module(
         text: str = Form(None),
         question: str = Form(None),
         options: str = Form(None),
-        correct: int = Form(None),
+        correct: Optional[int] = Form(None),  # Аналогично для edit
         points: int = Form(...),
         image: UploadFile = File(None),
         request: Request = None,
@@ -181,7 +174,6 @@ async def edit_module(
         if image.size > 5 * 1024 * 1024:
             return templates.TemplateResponse("module_edit.html", {"request": request, "module": module,
                                                                    "error": "Размер изображения не должен превышать 5 МБ"})
-        # Удаляем старое изображение, если оно есть
         if module.image and os.path.exists(module.image):
             os.remove(module.image)
         image_path = f"static/uploads/{image.filename}"
@@ -201,7 +193,6 @@ async def edit_module(
     db.commit()
     return RedirectResponse(url="/modules", status_code=302)
 
-
 @router.get("/delete/{module_id}", response_class=RedirectResponse)
 def delete_module(module_id: int, request: Request, db: Session = Depends(get_db)):
     user_id = request.session.get("user_id")
@@ -219,7 +210,6 @@ def delete_module(module_id: int, request: Request, db: Session = Depends(get_db
         db.delete(module)
         db.commit()
     return RedirectResponse(url="/modules", status_code=302)
-
 
 @router.get("/view/{module_id}", response_class=HTMLResponse)
 def view_module(module_id: int, request: Request, db: Session = Depends(get_db)):
@@ -241,11 +231,10 @@ def view_module(module_id: int, request: Request, db: Session = Depends(get_db))
     return templates.TemplateResponse("module_view.html",
                                       {"request": request, "module": module, "completed": completed})
 
-
 @router.post("/complete/{module_id}", response_class=RedirectResponse)
 def complete_module(
         module_id: int,
-        answer: int = Form(None),  # Для тестов
+        answer: int = Form(None),
         request: Request = None,
         db: Session = Depends(get_db)
 ):
@@ -263,10 +252,8 @@ def complete_module(
 
     progress = db.query(Progress).filter(Progress.user_id == user_id, Progress.module_id == module_id).first()
     if progress and progress.completed:
-        # Модуль уже пройден, баллы не начисляем
         return RedirectResponse(url="/modules", status_code=302)
 
-    # Проверка ответа для теста
     if module.type == "test":
         if answer is None:
             return templates.TemplateResponse("module_view.html",
@@ -276,7 +263,6 @@ def complete_module(
             return templates.TemplateResponse("module_view.html", {"request": request, "module": module,
                                                                    "error": "Неправильный ответ. Попробуйте снова"})
 
-    # Начисляем баллы и отмечаем модуль как пройденный
     if not progress:
         progress = Progress(user_id=user_id, module_id=module_id, completed=True)
         db.add(progress)

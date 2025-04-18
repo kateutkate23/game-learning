@@ -1,59 +1,79 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <h2 class="text-center">Создать новый модуль</h2>
-        <form method="post" action="/modules/create" enctype="multipart/form-data" class="mt-4">
-            <div class="mb-3">
-                <label for="type" class="form-label">Тип модуля</label>
-                <select class="form-control" id="type" name="type" onchange="toggleFields()" required>
-                    <option value="theory">Теория</option>
-                    <option value="test">Тест</option>
-                </select>
-            </div>
-            <div class="mb-3">
-                <label for="title" class="form-label">Заголовок</label>
-                <input type="text" class="form-control" id="title" name="title" required>
-            </div>
-            <div class="mb-3" id="theoryFields">
-                <label for="text" class="form-label">Текст</label>
-                <textarea class="form-control" id="text" name="text" rows="5"></textarea>
-            </div>
-            <div id="testFields" style="display: none;">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h2 class="text-center">Создание модуля</h2>
+            {% if error %}
+                <p class="text-danger">{{ error }}</p>
+            {% endif %}
+            <form method="post" action="/modules/create" enctype="multipart/form-data" class="mt-4">
                 <div class="mb-3">
+                    <label for="type" class="form-label">Тип модуля</label>
+                    <select class="form-control" id="type" name="type" required onchange="toggleFields()">
+                        <option value="theory">Теория</option>
+                        <option value="test">Тест</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="title" class="form-label">Название</label>
+                    <input type="text" class="form-control" id="title" name="title" required>
+                </div>
+                <div class="mb-3 theory-field">
+                    <label for="text" class="form-label">Текст</label>
+                    <textarea class="form-control" id="text" name="text" rows="5"></textarea>
+                </div>
+                <div class="mb-3 test-field" style="display: none;">
                     <label for="question" class="form-label">Вопрос</label>
                     <input type="text" class="form-control" id="question" name="question">
                 </div>
-                <div class="mb-3">
+                <div class="mb-3 test-field" style="display: none;">
                     <label for="options" class="form-label">Варианты ответа (через запятую)</label>
-                    <input type="text" class="form-control" id="options" name="options"
-                           placeholder="вариант1,вариант2,вариант3">
+                    <input type="text" class="form-control" id="options" name="options">
+                </div>
+                <div class="mb-3 test-field" style="display: none;">
+                    <label for="correct" class="form-label">Номер правильного ответа (0-based)</label>
+                    <input type="number" class="form-control" id="correct" name="correct">
                 </div>
                 <div class="mb-3">
-                    <label for="correct" class="form-label">Правильный ответ (номер варианта, начиная с 0)</label>
-                    <input type="number" class="form-control" id="correct" name="correct" min="0">
+                    <label for="points" class="form-label">Баллы</label>
+                    <input type="number" class="form-control" id="points" name="points" required>
                 </div>
-            </div>
-            <div class="mb-3">
-                <label for="points" class="form-label">Баллы за прохождение</label>
-                <input type="number" class="form-control" id="points" name="points" required min="0">
-            </div>
-            <div class="mb-3">
-                <label for="image" class="form-label">Изображение (опционально)</label>
-                <input type="file" class="form-control" id="image" name="image">
-            </div>
-            <div class="text-center">
-                <button type="submit" class="btn btn-primary">Опубликовать</button>
-                <a href="/modules" class="btn btn-secondary">Отмена</a>
-            </div>
-        </form>
+                <div class="mb-3">
+                    <label for="image" class="form-label">Изображение</label>
+                    <input type="file" class="form-control" id="image" name="image"
+                           accept="image/png,image/jpeg,image/jpg">
+                </div>
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary">Создать</button>
+                    <a href="/modules" class="btn btn-link">Отмена</a>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
-<script>
-    function toggleFields() {
-        const type = document.getElementById("type").value;
-        document.getElementById("theoryFields").style.display = type === "theory" ? "block" : "none";
-        document.getElementById("testFields").style.display = type === "test" ? "block" : "none";
-    }
-</script>
+    <script>
+        function toggleFields() {
+            const type = document.getElementById("type").value;
+            const theoryFields = document.getElementsByClassName("theory-field");
+            const testFields = document.getElementsByClassName("test-field");
+            const correctInput = document.getElementById("correct");
+
+            for (let field of theoryFields) {
+                field.style.display = type === "theory" ? "block" : "none";
+            }
+            for (let field of testFields) {
+                field.style.display = type === "test" ? "block" : "none";
+            }
+
+            // Отключаем отправку поля correct для теории
+            if (type === "theory" && correctInput) {
+                correctInput.disabled = true;  // Отключаем поле
+                correctInput.value = "";      // Очищаем значение
+            } else if (type === "test" && correctInput) {
+                correctInput.disabled = false; // Включаем поле для теста
+            }
+        }
+
+        // Вызываем toggleFields при загрузке страницы
+        window.onload = toggleFields;
+    </script>
 {% endblock %}
