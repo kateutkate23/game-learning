@@ -1,37 +1,39 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <h2 class="text-center">Доступные модули</h2>
-        {% if success %}
-        <div class="alert alert-success" role="alert">
-            {{ success }}
-        </div>
-        {% endif %}
-        {% if modules %}
-        <div class="row">
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Доступные модули</h2>
+    {% if success %}
+        <div class="alert alert-success text-center">{{ success }}</div>
+    {% endif %}
+    {% if modules %}
+        <div class="row row-cols-1 row-cols-md-3 g-4">
             {% for module in modules %}
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    {% if module.image %}
-                    <img src="/{{ module.image }}" class="card-img-top" alt="Изображение модуля">
-                    {% endif %}
-                    <div class="card-body">
-                        <h5 class="card-title">{{ module.title }}</h5>
-                        <p class="card-text">{{ "Теория" if module.type == "theory" else "Тест" }}</p>
-                        <p class="card-text">Баллы: {{ module.points }}</p>
-                        {% if module.id in completed_modules %}
-                        <span class="badge bg-success position-absolute top-0 end-0 m-2">Пройден</span>
+                <div class="col">
+                    <div class="card h-100 shadow-sm">
+                        {% if module.image %}
+                            <img src="/{{ module.image }}" class="card-img-top" alt="{{ module.title }}" style="height: 150px; object-fit: cover;">
+                        {% else %}
+                            <div class="card-img-top bg-secondary" style="height: 150px;"></div>
                         {% endif %}
-                        <a href="/modules/view/{{ module.id }}" class="btn btn-primary">Пройти</a>
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">{{ module.title }}</h5>
+                            <p class="card-text flex-grow-1">
+                                Тип: {{ "Теория" if module.type == "theory" else "Тест" }}<br>
+                                Баллы: {{ module.points }}<br>
+                                Статус: {{ "Пройден" if module.id in completed_modules else "Не пройден" }}
+                            </p>
+                            <div class="mt-auto">
+                                <a href="/modules/view/{{ module.id }}" class="btn btn-sm btn-primary w-100">
+                                    {{ "Повторить" if module.id in completed_modules else "Пройти" }}
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
             {% endfor %}
         </div>
-        {% else %}
-        <p class="text-center">Пока нет доступных модулей.</p>
-        {% endif %}
-    </div>
+    {% else %}
+        <p class="text-center">Модулей пока нет.</p>
+    {% endif %}
 </div>
 {% endblock %}
